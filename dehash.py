@@ -1,5 +1,8 @@
 # dehash.py
 # Herramienta para revertir hashes generados por el algoritmo XOR rotacional.
+# Versión 2.0 - Acepta argumentos desde la línea de comandos.
+
+import sys
 
 def dehash(hashed_string, key):
     """
@@ -23,26 +26,38 @@ def dehash(hashed_string, key):
             
             # 2. Revertir la rotación
             # El alfabeto es a-z (97 a 122). La rotación es `i` (la posición).
+            # Para revertir, restamos i
             original_char_ord = unxored_char_ord - i
             
             # Asegurarse de que el caracter esté en el rango a-z
+            # (Usamos lower() para la flag, así que solo comprobamos minúsculas)
             if 97 <= original_char_ord <= 122:
                 original_text += chr(original_char_ord)
             else:
                 # Si algo sale mal, devuelve un error
-                return "Error: Caracter fuera de rango. ¿Clave incorrecta?"
+                return f"Error: Caracter '{chr(unxored_char_ord)}' fuera de rango. ¿Clave incorrecta?"
 
-        return original_text
+        # La flag es la palabra que encontramos, pero en mayúsculas para que sea más impactante.
+        return original_text.upper()
 
     except Exception as e:
         return f"Error procesando el hash: {e}. Asegúrate de que el formato y la clave son correctos."
 
+# --- Bloque principal modificado ---
 if __name__ == "__main__":
-    print("--- Legacy Dehasher v1.0 ---")
+    # Comprobamos si el usuario ha proporcionado los 2 argumentos necesarios (hash y clave)
+    if len(sys.argv) != 3:
+        print("--- Legacy Dehasher v2.0 ---")
+        print("Error: Número de argumentos incorrecto.")
+        print("Uso: python dehash.py <hash> <clave_hex>")
+        print("Ejemplo: python dehash.py 15-0b-11-1a-0e 0x2A")
+        sys.exit(1) # Salir del script con un código de error
     
-    input_hash = input("Introduce el hash (formato xx-xx-xx-xx): ")
-    input_key = input("Introduce la clave XOR (formato 0xXX): ")
+    # Asignar los argumentos a las variables
+    input_hash = sys.argv[1]
+    input_key = sys.argv[2]
     
+    # Llamar a la función con los argumentos
     flag = dehash(input_hash, input_key)
     
     print("-" * 30)
